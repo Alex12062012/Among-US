@@ -1,0 +1,770 @@
+/* ============================================================
+   style.css — Apparence du jeu
+   Thème : spatial sombre, bleu nuit, ambiance Among Us
+   ============================================================ */
+
+/* Variables de couleur (modifier ici pour changer tout le thème) */
+:root {
+  --bleu-nuit: #0a0e1a;
+  --bleu-fonce: #0d1b2a;
+  --bleu-moyen: #1a2d45;
+  --bleu-clair: #1e3a5f;
+  --accent: #4fc3f7;
+  --accent2: #7c4dff;
+  --rouge: #ff4444;
+  --vert: #44ff88;
+  --jaune: #ffd740;
+  --texte: #e0f0ff;
+  --texte-sombre: #7fafd0;
+  --police: 'Orbitron', 'Courier New', monospace;
+}
+
+/* Import de la police spatiale */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+/* Reset de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bleu-nuit);
+  color: var(--texte);
+  font-family: var(--police);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  user-select: none; /* empêche la sélection de texte pendant le jeu */
+}
+
+/* Étoiles en arrière-plan (générées par CSS) */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, white, transparent),
+    radial-gradient(1px 1px at 30% 60%, white, transparent),
+    radial-gradient(1px 1px at 50% 10%, white, transparent),
+    radial-gradient(1px 1px at 70% 80%, white, transparent),
+    radial-gradient(1px 1px at 85% 35%, white, transparent),
+    radial-gradient(2px 2px at 20% 90%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 60% 45%, white, transparent),
+    radial-gradient(1px 1px at 90% 70%, white, transparent),
+    radial-gradient(2px 2px at 45% 75%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 15% 50%, white, transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---- SYSTÈME D'ÉCRANS ---- */
+/* Chaque section du jeu est un "écran", seul un est visible à la fois */
+.ecran {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+}
+.ecran.actif {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* ============================================================
+   ÉCRAN D'ACCUEIL
+   ============================================================ */
+#ecran-accueil {
+  background: radial-gradient(ellipse at center, var(--bleu-fonce) 0%, var(--bleu-nuit) 100%);
+}
+
+.titre-container {
+  text-align: center;
+  margin-bottom: 2rem;
+  animation: apparition 0.8s ease-out;
+}
+
+.titre-jeu {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.sous-titre {
+  color: var(--texte-sombre);
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  margin-top: 0.5rem;
+}
+
+.carte-accueil {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  width: min(400px, 90vw);
+  backdrop-filter: blur(10px);
+  animation: apparition 1s ease-out 0.2s both;
+}
+
+.champ-groupe {
+  margin-bottom: 1.5rem;
+}
+
+.champ-groupe label {
+  display: block;
+  color: var(--accent);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+input[type="text"] {
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(79, 195, 247, 0.4);
+  border-radius: 8px;
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+input[type="text"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(79, 195, 247, 0.2);
+}
+
+input[type="text"]::placeholder {
+  color: var(--texte-sombre);
+  font-size: 0.85rem;
+}
+
+/* Boutons */
+.bouton {
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--police);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.bouton-primaire {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: var(--bleu-nuit);
+}
+
+.bouton-primaire:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(79, 195, 247, 0.4);
+}
+
+.bouton-secondaire {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  width: auto;
+  padding: 0.75rem 1.25rem;
+}
+
+.bouton-secondaire:hover {
+  background: rgba(79, 195, 247, 0.1);
+}
+
+.separateur {
+  text-align: center;
+  color: var(--texte-sombre);
+  font-size: 0.8rem;
+  margin: 1rem 0;
+  letter-spacing: 0.2em;
+}
+
+.rejoindre-groupe {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rejoindre-groupe input {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.erreur {
+  color: var(--rouge);
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: rgba(255, 68, 68, 0.1);
+  border-radius: 6px;
+}
+
+.deco-astronaute {
+  position: fixed;
+  font-size: 3rem;
+  opacity: 0.15;
+  animation: flottement 4s ease-in-out infinite;
+}
+
+/* ============================================================
+   LOBBY
+   ============================================================ */
+#ecran-lobby {
+  background: var(--bleu-nuit);
+  flex-direction: column;
+  padding: 2rem;
+}
+
+.lobby-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.lobby-header h2 {
+  font-size: 1.8rem;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  margin-bottom: 1rem;
+}
+
+.code-affichage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  color: var(--texte-sombre);
+}
+
+.code-texte {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 0.4em;
+  color: var(--jaune);
+  text-shadow: 0 0 20px rgba(255, 215, 64, 0.5);
+}
+
+#btn-copier {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+#btn-copier:hover { opacity: 1; }
+
+.grille-joueurs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  max-width: 800px;
+  width: 100%;
+  min-height: 100px;
+}
+
+/* Carte d'un joueur dans le lobby */
+.joueur-carte {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  animation: apparition 0.3s ease-out;
+}
+
+.joueur-astronaute {
+  width: 50px;
+  height: 60px;
+  border-radius: 50% 50% 40% 40%;
+  margin: 0 auto 0.5rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.joueur-astronaute::after {
+  content: '👁';
+  font-size: 0.7rem;
+  position: absolute;
+  top: 30%;
+}
+
+.joueur-pseudo {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.joueur-hote-badge {
+  font-size: 0.65rem;
+  color: var(--jaune);
+  margin-top: 0.2rem;
+}
+
+.lobby-footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.info-lobby {
+  color: var(--texte-sombre);
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.bouton-lancer {
+  background: linear-gradient(135deg, #44ff88, #00cc55);
+  color: var(--bleu-nuit);
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  width: auto;
+}
+
+.bouton-lancer:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(68, 255, 136, 0.4);
+}
+
+.attente-texte {
+  color: var(--texte-sombre);
+  font-size: 0.85rem;
+  animation: clignotement 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   JEU PRINCIPAL
+   ============================================================ */
+#ecran-jeu {
+  background: #111;
+  position: relative;
+}
+
+#canvas-jeu {
+  display: block;
+  /* Le canvas s'adapte à la fenêtre (géré en JS) */
+}
+
+/* HUD = Heads-Up Display (interface par-dessus le jeu) */
+#hud {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+  z-index: 10;
+  align-items: flex-end;
+}
+
+.hud-bloc {
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+}
+
+#texte-role {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.bouton-action {
+  background: none;
+  border: 1px solid;
+  border-radius: 8px;
+  font-family: var(--police);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.bouton-tuer {
+  color: var(--rouge);
+  border-color: var(--rouge);
+}
+.bouton-tuer:hover {
+  background: rgba(255, 68, 68, 0.2);
+}
+
+.bouton-signaler {
+  color: var(--jaune);
+  border-color: var(--jaune);
+}
+.bouton-signaler:hover {
+  background: rgba(255, 215, 64, 0.2);
+}
+
+.bouton-urgence {
+  color: var(--rouge);
+  border-color: var(--rouge);
+  animation: clignotement-rouge 1s ease-in-out infinite;
+}
+
+/* Contrôles tactiles mobile */
+#controles-mobile {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 10;
+  display: none; /* Masqué sur desktop */
+}
+
+@media (max-width: 768px) {
+  #controles-mobile { display: block; }
+}
+
+.joystick-container {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 4px;
+  align-items: center;
+}
+
+.btn-dir-milieu {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.btn-dir {
+  width: 52px;
+  height: 52px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-dir:active {
+  background: rgba(79, 195, 247, 0.4);
+}
+
+/* ============================================================
+   RÉUNION / CHAT
+   ============================================================ */
+#ecran-reunion {
+  background: rgba(0,0,0,0.95);
+}
+
+.reunion-container {
+  width: min(900px, 95vw);
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bleu-fonce);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.reunion-header {
+  background: rgba(255, 100, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 100, 0, 0.4);
+  padding: 1rem 1.5rem;
+  text-align: center;
+}
+
+.reunion-header h2 {
+  font-size: 1.3rem;
+  color: var(--jaune);
+  letter-spacing: 0.2em;
+}
+
+.reunion-raison {
+  color: var(--texte-sombre);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.minuterie {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.reunion-corps {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Liste des joueurs (pour la réunion) */
+.liste-votes {
+  width: 200px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vote-joueur-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+}
+
+.vote-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.vote-pseudo {
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vote-mort {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+/* Chat */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.messages-chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.message {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  animation: apparition 0.2s ease-out;
+}
+
+.message-pseudo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.message-texte {
+  font-size: 0.85rem;
+  color: var(--texte);
+  word-break: break-word;
+  font-family: 'Courier New', monospace;
+}
+
+.chat-input-zone {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.chat-input-zone input {
+  flex: 1;
+}
+
+#btn-envoyer {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: var(--bleu-nuit);
+  font-family: var(--police);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+
+/* Zone de vote */
+.zone-vote {
+  padding: 1.5rem;
+  border-top: 2px solid rgba(255, 100, 0, 0.5);
+  background: rgba(255, 100, 0, 0.05);
+}
+
+.zone-vote h3 {
+  color: var(--jaune);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.vote-minuterie {
+  text-align: center;
+  color: var(--texte-sombre);
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.joueurs-a-voter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.btn-vote-joueur {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-vote-joueur:hover {
+  background: rgba(255, 100, 0, 0.3);
+  border-color: rgba(255, 100, 0, 0.6);
+}
+
+.btn-vote-joueur.vote-selectionne {
+  background: rgba(255, 100, 0, 0.5);
+  border-color: var(--rouge);
+}
+
+.bouton-skip {
+  background: transparent;
+  border: 1px solid var(--texte-sombre);
+  color: var(--texte-sombre);
+  display: block;
+  margin: 0 auto;
+  width: auto;
+  padding: 0.5rem 1.5rem;
+}
+
+/* ============================================================
+   FIN DE PARTIE
+   ============================================================ */
+#ecran-fin {
+  background: rgba(0,0,0,0.97);
+}
+
+.fin-container {
+  text-align: center;
+  animation: apparition 0.5s ease-out;
+}
+
+.fin-titre {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  margin-bottom: 1rem;
+}
+
+.fin-resultat {
+  color: var(--texte-sombre);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.fin-joueurs-liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+.fin-joueur-item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ============================================================
+   UTILITAIRES
+   ============================================================ */
+.hidden { display: none !important; }
+
+/* Animations */
+@keyframes apparition {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+@keyframes flottement {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes clignotement {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes clignotement-rouge {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 15px rgba(255, 68, 68, 0.6); }
+}
+
+/* Scrollbar stylisée */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
