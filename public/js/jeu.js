@@ -600,22 +600,13 @@ socket.on('erreur', ({ message }) => {
   afficherErreur(message);
 });
 
-// Partie créée → aller au lobby
+// Partie créée → mise_a_jour_lobby arrive juste après et gère l'affichage
 socket.on('partie_creee', ({ code }) => {
   etat.codePartie = code;
-  document.getElementById('code-lobby').textContent = code;
-  document.getElementById('btn-lancer').classList.remove('hidden');
-  document.getElementById('zone-bots').classList.remove('hidden');
-  document.getElementById('attente-hote').classList.add('hidden');
-  afficherEcran('lobby');
+  console.log('🎮 Partie créée :', code);
 });
 
-// Mise à jour du lobby (quelqu'un a rejoint/quitté)
-socket.on('mise_a_jour_lobby', ({ joueurs, code }) => {
-  etat.codePartie = code;
-  document.getElementById('code-lobby').textContent = code;
-  mettreAJourLobby(joueurs, code);
-});
+// (mise_a_jour_lobby géré plus bas, une seule fois)
 
 // La partie commence !
 socket.on('partie_lancee', ({ monRole, joueurs, map, imposteurs }) => {
@@ -773,8 +764,21 @@ document.addEventListener('keyup', (e) => {
 document.getElementById('btn-creer').addEventListener('click', () => {
   const pseudo = document.getElementById('pseudo').value.trim();
   if (!pseudo) { afficherErreur('Entre un pseudo !'); return; }
+
+  // Vérifie que le socket est bien connecté
+  if (!socket.connected) {
+    afficherErreur('Connexion au serveur en cours... Réessaie dans 2 secondes.');
+    // Réessaie automatiquement dès que connecté
+    socket.once('connect', () => {
+      etat.monPseudo = pseudo;
+      socket.emit('creer_partie', { pseudo });
+    });
+    return;
+  }
+
   etat.monPseudo = pseudo;
   socket.emit('creer_partie', { pseudo });
+  console.log('✅ creer_partie envoyé pour', pseudo);
 });
 
 // Rejoindre une partie
@@ -897,24 +901,28 @@ function ajouterMessageSysteme(texte) {
   zone.scrollTop = zone.scrollHeight;
 }
 
-// Mise à jour du lobby quand on rejoint
+// Mise à jour du lobby — appelé quand on crée/rejoint une partie ou qu'un joueur arrive
 socket.on('mise_a_jour_lobby', ({ joueurs, code }) => {
   etat.codePartie = code;
   document.getElementById('code-lobby').textContent = code;
   mettreAJourLobby(joueurs, code);
-  
-  // Si on n'est pas encore dans le lobby, y aller
-  if (!ecrans.lobby.classList.contains('actif') && !ecrans.jeu.classList.contains('actif')) {
-    // Vérifie si on est l'hôte
-    const moi = joueurs[socket.id];
-    if (moi && !moi.estHote) {
-      document.getElementById('btn-lancer').classList.add('hidden');
-      document.getElementById('zone-bots').classList.add('hidden');
-      document.getElementById('attente-hote').classList.remove('hidden');
-    } else if (moi && moi.estHote) {
-      document.getElementById('btn-lancer').classList.remove('hidden');
-      document.getElementById('zone-bots').classList.remove('hidden');
-    }
+
+  // Détermine si on est hôte
+  const moi = joueurs[socket.id];
+  if (moi && moi.estHote) {
+    document.getElementById('btn-lancer').classList.remove('hidden');
+    document.getElementById('zone-bots').classList.remove('hidden');
+    document.getElementById('attente-hote').classList.add('hidden');
+  } else if (moi && !moi.estHote) {
+    document.getElementById('btn-lancer').classList.add('hidden');
+    document.getElementById('zone-bots').classList.add('hidden');
+    document.getElementById('attente-hote').classList.remove('hidden');
+  }
+
+  // Va au lobby si on n'y est pas encore (et pas en train de jouer)
+  if (!ecrans.jeu.classList.contains('actif') &&
+      !ecrans.reunion.classList.contains('actif') &&
+      !ecrans.fin.classList.contains('actif')) {
     afficherEcran('lobby');
   }
 });
