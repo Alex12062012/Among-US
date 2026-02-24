@@ -605,6 +605,7 @@ socket.on('partie_creee', ({ code }) => {
   etat.codePartie = code;
   document.getElementById('code-lobby').textContent = code;
   document.getElementById('btn-lancer').classList.remove('hidden');
+  document.getElementById('zone-bots').classList.remove('hidden');
   document.getElementById('attente-hote').classList.add('hidden');
   afficherEcran('lobby');
 });
@@ -798,6 +799,18 @@ document.getElementById('btn-lancer').addEventListener('click', () => {
   socket.emit('lancer_partie');
 });
 
+// Boutons bots
+document.querySelectorAll('.bouton-bot[data-total]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const nbTotal = parseInt(btn.dataset.total);
+    socket.emit('ajouter_bots', { nbTotal });
+  });
+});
+
+document.getElementById('btn-retirer-bots').addEventListener('click', () => {
+  socket.emit('retirer_bots');
+});
+
 // Bouton tuer
 document.getElementById('btn-tuer').addEventListener('click', () => {
   const cibleId = document.getElementById('btn-tuer').dataset.cible;
@@ -896,7 +909,11 @@ socket.on('mise_a_jour_lobby', ({ joueurs, code }) => {
     const moi = joueurs[socket.id];
     if (moi && !moi.estHote) {
       document.getElementById('btn-lancer').classList.add('hidden');
+      document.getElementById('zone-bots').classList.add('hidden');
       document.getElementById('attente-hote').classList.remove('hidden');
+    } else if (moi && moi.estHote) {
+      document.getElementById('btn-lancer').classList.remove('hidden');
+      document.getElementById('zone-bots').classList.remove('hidden');
     }
     afficherEcran('lobby');
   }
