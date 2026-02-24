@@ -729,6 +729,9 @@ socket.on('nouveau_message', ({ pseudo, couleur, texte }) => {
 // ============================================================
 
 document.addEventListener('keydown', (e) => {
+  // Si l'utilisateur tape dans un champ texte, on ne bloque rien
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
   switch(e.code) {
     case 'ArrowUp':    case 'KeyZ': case 'KeyW': etat.touches.haut = true; break;
     case 'ArrowDown':  case 'KeyS': etat.touches.bas = true; break;
@@ -745,10 +748,14 @@ document.addEventListener('keydown', (e) => {
       if (!btnSig.classList.contains('hidden')) btnSig.click();
       break;
   }
-  e.preventDefault();
+  // On bloque le scroll de la page seulement pendant le jeu
+  if (ecrans.jeu.classList.contains('actif')) e.preventDefault();
 });
 
 document.addEventListener('keyup', (e) => {
+  // Si l'utilisateur tape dans un champ texte, on ignore
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
   switch(e.code) {
     case 'ArrowUp':    case 'KeyZ': case 'KeyW': etat.touches.haut = false; break;
     case 'ArrowDown':  case 'KeyS': etat.touches.bas = false; break;
