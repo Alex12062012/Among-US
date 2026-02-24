@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Among Us — Multijoueur</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Socket.io (connexion en temps réel) -->
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <!-- ===== ÉCRAN D'ACCUEIL ===== -->
+  <div id="ecran-accueil" class="ecran actif">
+    <div class="titre-container">
+      <h1 class="titre-jeu">AMONG US</h1>
+      <p class="sous-titre">Qui est l'imposteur parmi vous ?</p>
+    </div>
+    
+    <div class="carte-accueil">
+      <div class="champ-groupe">
+        <label for="pseudo">Ton pseudo</label>
+        <input type="text" id="pseudo" placeholder="Entrez votre pseudo..." maxlength="15" autocomplete="off">
+      </div>
+      
+      <div class="boutons-accueil">
+        <button id="btn-creer" class="bouton bouton-primaire">
+          🚀 Créer une partie
+        </button>
+        
+        <div class="separateur">ou</div>
+        
+        <div class="rejoindre-groupe">
+          <input type="text" id="code-partie" placeholder="Code de la partie" maxlength="6" autocomplete="off">
+          <button id="btn-rejoindre" class="bouton bouton-secondaire">
+            🔗 Rejoindre
+          </button>
+        </div>
+      </div>
+      
+      <p id="message-erreur" class="erreur hidden"></p>
+    </div>
+    
+    <!-- Astronautes décoratifs -->
+    <div class="deco-astronaute" style="top:15%;left:8%">🧑‍🚀</div>
+    <div class="deco-astronaute" style="top:70%;right:6%">🧑‍🚀</div>
+    <div class="deco-astronaute" style="top:40%;right:15%">🧑‍🚀</div>
+  </div>
+
+  <!-- ===== LOBBY (salle d'attente) ===== -->
+  <div id="ecran-lobby" class="ecran">
+    <div class="lobby-header">
+      <h2>Salle d'attente</h2>
+      <div class="code-affichage">
+        Code : <span id="code-lobby" class="code-texte">------</span>
+        <button id="btn-copier" title="Copier le code">📋</button>
+      </div>
+    </div>
+    
+    <div id="liste-joueurs-lobby" class="grille-joueurs"></div>
+    
+    <div class="lobby-footer">
+      <p class="info-lobby">Il faut au moins 4 joueurs pour commencer</p>
+      <button id="btn-lancer" class="bouton bouton-lancer hidden">
+        ▶ Lancer la partie
+      </button>
+      <p id="attente-hote" class="attente-texte hidden">En attente que l'hôte lance la partie...</p>
+    </div>
+  </div>
+
+  <!-- ===== JEU PRINCIPAL ===== -->
+  <div id="ecran-jeu" class="ecran">
+    <!-- Canvas où le jeu est dessiné -->
+    <canvas id="canvas-jeu"></canvas>
+    
+    <!-- Interface du jeu (par dessus le canvas) -->
+    <div id="hud">
+      <!-- Rôle du joueur -->
+      <div id="hud-role" class="hud-bloc">
+        <span id="texte-role">?</span>
+      </div>
+      
+      <!-- Actions disponibles -->
+      <div id="hud-actions" class="hud-bloc">
+        <button id="btn-tuer" class="bouton-action bouton-tuer hidden">☠ Tuer [E]</button>
+        <button id="btn-signaler" class="bouton-action bouton-signaler hidden">📢 Signaler [F]</button>
+        <button id="btn-urgence" class="bouton-action bouton-urgence hidden">🚨 URGENCE [Q]</button>
+      </div>
+    </div>
+    
+    <!-- Contrôles sur mobile -->
+    <div id="controles-mobile">
+      <div class="joystick-container">
+        <button class="btn-dir" id="btn-haut">▲</button>
+        <div class="btn-dir-milieu">
+          <button class="btn-dir" id="btn-gauche">◄</button>
+          <button class="btn-dir" id="btn-droite">►</button>
+        </div>
+        <button class="btn-dir" id="btn-bas">▼</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RÉUNION / CHAT ===== -->
+  <div id="ecran-reunion" class="ecran">
+    <div class="reunion-container">
+      <div class="reunion-header">
+        <h2>⚠️ RÉUNION D'URGENCE</h2>
+        <p id="reunion-raison" class="reunion-raison"></p>
+        <div id="minuterie-container">
+          <span>Discussion : </span><span id="minuterie-texte" class="minuterie">60</span>s
+        </div>
+      </div>
+      
+      <div class="reunion-corps">
+        <!-- Liste des joueurs vivants (pour voter) -->
+        <div id="liste-votes" class="liste-votes"></div>
+        
+        <!-- Chat -->
+        <div class="chat-container">
+          <div id="messages-chat" class="messages-chat"></div>
+          <div id="chat-input-zone" class="chat-input-zone">
+            <input type="text" id="input-chat" placeholder="Écrire un message..." maxlength="200">
+            <button id="btn-envoyer">Envoyer</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Zone de vote (apparaît après la discussion) -->
+      <div id="zone-vote" class="zone-vote hidden">
+        <h3>Votez ! Qui est l'imposteur ?</h3>
+        <p class="vote-minuterie">Vote dans : <span id="minuterie-vote">30</span>s</p>
+        <div id="joueurs-a-voter" class="joueurs-a-voter"></div>
+        <button id="btn-skip" class="bouton bouton-skip">⏭ Passer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FIN DE PARTIE ===== -->
+  <div id="ecran-fin" class="ecran">
+    <div class="fin-container">
+      <div id="fin-titre" class="fin-titre"></div>
+      <div id="fin-resultat" class="fin-resultat"></div>
+      <div id="fin-joueurs" class="fin-joueurs-liste"></div>
+      <button id="btn-rejouer" class="bouton bouton-primaire">🔄 Rejouer</button>
+    </div>
+  </div>
+
+  <!-- Script principal du jeu (côté client) -->
+  <script src="js/jeu.js"></script>
+</body>
+</html>
