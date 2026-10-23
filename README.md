@@ -1,6 +1,6 @@
 # Among Us — version navigateur
 
-Un **Among Us multijoueur jouable dans le navigateur**, que j'ai fait quand j'étais au collège. On crée une partie, on partage le code, on complète avec des bots, et on essaie de démasquer l'imposteur.
+Un **Among Us multijoueur jouable dans le navigateur** : un projet de collégien. On crée une partie, on partage le code, on complète avec des bots, et on essaie de démasquer l'imposteur.
 
 | Accueil | Salon d'attente | En partie |
 |---|---|---|
